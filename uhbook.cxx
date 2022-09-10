@@ -24,10 +24,11 @@ public:
 	long getEntry() {return m_entry;};
 	long getBins() {return m_x_bins.size();};
 	void Clear();
-	void setBins(long);
-	void setMin(double);
+	void setNbins(long bins) {if (m_entry == 0) {m_x_bins.resize(bins);}};
+	long getNbins() {return m_x_bins.size();};
+	void setMin(double min) {if (m_entry == 0) {m_x_min = min;}};
 	double getMin() {return m_x_min;};
-	void setMmax(double);
+	void setMax(double max) {if (m_entry == 0) {m_x_max = max;}};
 	double getMax() {return m_x_max;};
 protected:
 private:
@@ -96,11 +97,16 @@ UH1Book::~UH1Book()
 	return;
 }
 
+/*
 void UH1Book::setMin(double min)
 {
-	m_x_min = min;
+	if (m_entry == 0) {
+		m_x_min = min;
+	} else {
+	}
 	return;
 }
+*/
 
 void UH1Book::Fill(double val)
 {
@@ -122,6 +128,17 @@ void UH1Book::Fill(double val, double weight)
 		m_x_bins[index] = m_x_bins[index] + weight;
 		m_entry++;
 	}
+
+	return;
+}
+
+void UH1Book::Clear()
+{
+	m_x_bins.clear();
+	m_x_bins.resize(0);
+	m_entry = 0;
+	m_uf = 0;
+	m_of = 0; 
 
 	return;
 }
@@ -159,13 +176,6 @@ void UH1Book::Draw()
 	return;
 }
 
-void UH1Book::Clear()
-{
-	m_x_bins.clear();
-	m_x_bins.resize(0);
-
-	return;
-}
 
 #ifdef TEST_MAIN 
 #include <random>
