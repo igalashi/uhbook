@@ -6,6 +6,7 @@
 #define UHBOOK_HXX
 
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <string>
 
@@ -156,6 +157,7 @@ void UH1Book::Print()
 void UH1Book::Draw()
 {
 	int tlen = 80;
+	int hlen = tlen - 8;
 
 	double vmax = 0;
 	for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
@@ -164,11 +166,15 @@ void UH1Book::Draw()
 
 	for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 		int dnum;
-		if (vmax < tlen) {
+		if (vmax < hlen) {
 			dnum = static_cast<int>(m_x_bins[i]);
 		} else {
-			dnum = m_x_bins[i] / vmax * tlen;
+			dnum = m_x_bins[i] / vmax * hlen;
 		}
+		double xindex = ((m_x_max - m_x_min) / m_x_bins.size() * i) + m_x_min;
+		std::cout
+			<< std::scientific << std::setprecision(1) 
+			<< xindex << ":";
 		for (int j = 0 ; j < dnum ; j++) std::cout << "#";
 		std::cout << std::endl;
 	}
