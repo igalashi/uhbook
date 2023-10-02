@@ -2,8 +2,8 @@
  *
  */
 
-#ifndef UHBOOK_HXX
-#define UHBOOK_HXX
+#ifndef UHBOOK_CXX
+#define UHBOOK_CXX
 
 #include <iostream>
 #include <iomanip>
@@ -18,8 +18,10 @@ public:
 	virtual ~UH1Book();
 	void Fill(double);
 	void Fill(double, double);
+	void Fill(int val){Fill(static_cast<double>(val));};
 	void Print();
 	void Draw();
+	void Reset(){};
 	void setTitle(std::string &);
 	std::string getTitle();
 	long getEntry() {return m_entry;};
@@ -46,7 +48,6 @@ private:
 	long m_of; 
 };
 
-#endif
 
 #include <sys/ioctl.h>
 #include <unistd.h>
@@ -174,7 +175,8 @@ void UH1Book::Draw()
 		double xindex = ((m_x_max - m_x_min) / m_x_bins.size() * i) + m_x_min;
 		std::cout
 			<< std::scientific << std::setprecision(1) 
-			<< xindex << ":";
+			<< xindex << ":"
+			<< m_x_bins[i] << "|";
 		for (int j = 0 ; j < dnum ; j++) std::cout << "#";
 		std::cout << std::endl;
 	}
@@ -182,6 +184,7 @@ void UH1Book::Draw()
 	return;
 }
 
+#endif
 
 #ifdef TEST_MAIN 
 #include <random>
