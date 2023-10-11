@@ -45,6 +45,8 @@ public:
 		{Fill(static_cast<double>(val), weight);};
 	void Fill(int val, int iweight = 1)
 		{Fill(static_cast<double>(val), static_cast<double>(iweight));}
+	void Fill(int val)
+		{Fill(static_cast<double>(val), 1.0);}
 	void Reset();
 
 #if 0
@@ -303,10 +305,10 @@ UH1Book& UH1Book::Divide(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (h.GetBinContent(i) != 0) {
+			if (h.GetBinContent(i) != 0.0) {
 				m_x_bins[i] = m_x_bins[i] / h.GetBinContent(i);
 			} else {
-				m_x_bins[i] = 0;
+				m_x_bins[i] = 0.0;
 			}
 		}
 	}
@@ -321,10 +323,10 @@ UH1Book UH1Book::operator /(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (h.GetBinContent(i) != 0) {
+			if (h.GetBinContent(i) != 0.0) {
 				hh.m_x_bins[i] = m_x_bins[i] / h.m_x_bins[i];
 			} else {
-				hh.m_x_bins[i] = 0;
+				hh.m_x_bins[i] = 0.0;
 			}
 		}
 	}
@@ -404,6 +406,8 @@ public:
 	void Fill(int xval, int yval, int iweight = 1)
 		{Fill(static_cast<double>(xval),
 			static_cast<double>(yval), static_cast<double>(iweight));}
+	void Fill(int xval, int yval)
+		{Fill(static_cast<double>(xval), static_cast<double>(yval), 1.0);}
 	void Reset();
 
 	void SetNbins(int xbins, int ybins) {
