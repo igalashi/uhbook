@@ -10,6 +10,7 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <limits>
 
 class UHnBook {
 public:
@@ -43,10 +44,6 @@ public:
 	void Fill(double, double);
 	void Fill(int val, double weight = 1.0)
 		{Fill(static_cast<double>(val), weight);};
-	void Fill(int val, int iweight = 1)
-		{Fill(static_cast<double>(val), static_cast<double>(iweight));}
-	void Fill(int val)
-		{Fill(static_cast<double>(val), 1.0);}
 	void Reset();
 
 #if 0
@@ -107,7 +104,7 @@ private:
 	int m_entry = 0;
 #endif
 	int m_uf = 0;
-	int m_of = 0; 
+	int m_of = 0;
 };
 
 
@@ -140,7 +137,7 @@ void UH1Book::Initialize(std::string &title, int bins = 0)
 	m_x_bins.resize(bins);
 	m_entry = 0;
 	m_uf = 0;
-	m_of = 0; 
+	m_of = 0;
 
 	return;
 }
@@ -151,7 +148,7 @@ void UH1Book::Initialize()
 	m_x_bins.resize(0);
 	m_entry = 0;
 	m_uf = 0;
-	m_of = 0; 
+	m_of = 0;
 
 	return;
 }
@@ -167,7 +164,7 @@ void UH1Book::Reset()
 	std::fill(m_x_bins.begin(), m_x_bins.end(), 0.0);
 	m_entry = 0;
 	m_uf = 0;
-	m_of = 0; 
+	m_of = 0;
 
 	return;
 };
@@ -189,9 +186,10 @@ void UH1Book::Fill(double val, double weight = 1.0)
 
 UH1Book& UH1Book::Add(UH1Book &h)
 {
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			//m_x_bins[i] += h.GetBinContent(i);
 			m_x_bins[i] += h.m_x_bins[i];
@@ -200,11 +198,11 @@ UH1Book& UH1Book::Add(UH1Book &h)
 		#if 0
 		m_entry += h.GetEntries();
 		m_uf += h.GetOverflows();
-		m_of += h.GetUnderflows(); 
+		m_of += h.GetUnderflows();
 		#else
 		m_entry += h.m_entry;
 		m_uf += h.m_uf;
-		m_of += h.m_of; 
+		m_of += h.m_of;
 		#endif
 
 	} else {
@@ -217,15 +215,17 @@ UH1Book& UH1Book::Add(UH1Book &h)
 UH1Book UH1Book::operator +(UH1Book &h)
 {
 	UH1Book hh(*this);
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			hh.m_x_bins[i] += h.m_x_bins[i];
 		}
 		hh.m_entry += h.m_entry;
 		hh.m_uf += h.m_uf;
-		hh.m_of += h.m_of; 
+		hh.m_of += h.m_of;
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -236,15 +236,16 @@ UH1Book UH1Book::operator +(UH1Book &h)
 
 UH1Book& UH1Book::Subtract(UH1Book &h)
 {
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			m_x_bins[i] -= h.m_x_bins[i];
 		}
 		m_entry -= h.m_entry;
 		m_uf -= h.m_uf;
-		m_of -= h.m_of; 
+		m_of -= h.m_of;
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -255,15 +256,17 @@ UH1Book& UH1Book::Subtract(UH1Book &h)
 UH1Book UH1Book::operator -(UH1Book &h)
 {
 	UH1Book hh(*this);
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			hh.m_x_bins[i] -= h.m_x_bins[i];
 		}
 		hh.m_entry -= h.m_entry;
 		hh.m_uf -= h.m_uf;
-		hh.m_of -= h.m_of; 
+		hh.m_of -= h.m_of;
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -274,9 +277,10 @@ UH1Book UH1Book::operator -(UH1Book &h)
 
 UH1Book& UH1Book::Multiply(UH1Book &h)
 {
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			m_x_bins[i] = m_x_bins[i] * h.m_x_bins[i];
 		}
@@ -288,9 +292,11 @@ UH1Book& UH1Book::Multiply(UH1Book &h)
 UH1Book UH1Book::operator *(UH1Book &h)
 {
 	UH1Book hh(*this);
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			hh.m_x_bins[i] = m_x_bins[i] * h.m_x_bins[i];
 		}
@@ -301,11 +307,12 @@ UH1Book UH1Book::operator *(UH1Book &h)
 
 UH1Book& UH1Book::Divide(UH1Book &h)
 {
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (h.GetBinContent(i) != 0.0) {
+			if (std::abs(h.GetBinContent(i)) < EPS) {
 				m_x_bins[i] = m_x_bins[i] / h.GetBinContent(i);
 			} else {
 				m_x_bins[i] = 0.0;
@@ -319,11 +326,13 @@ UH1Book& UH1Book::Divide(UH1Book &h)
 UH1Book UH1Book::operator /(UH1Book &h)
 {
 	UH1Book hh(*this);
-	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size()) 
-		&& (h.GetMinimum() == m_x_min) 
-		&& (h.GetMaximum() == m_x_max)) {
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if ((static_cast<size_t>(h.GetNBins()) == m_x_bins.size())
+		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (h.GetBinContent(i) != 0.0) {
+			if (std::abs(h.GetBinContent(i)) < EPS) {
 				hh.m_x_bins[i] = m_x_bins[i] / h.m_x_bins[i];
 			} else {
 				hh.m_x_bins[i] = 0.0;
@@ -358,7 +367,7 @@ size_t get_terminal_width()
 		if ((ws.ws_col > 0) && (ws.ws_col == (size_t)ws.ws_col)) {
 			line_length = ws.ws_col;
 		}
-	} 
+	}
 	return line_length;
 }
 
@@ -381,7 +390,7 @@ void UH1Book::Draw()
 		}
 		double xindex = ((m_x_max - m_x_min) / m_x_bins.size() * i) + m_x_min;
 		std::cout
-			<< std::scientific << std::setprecision(1) 
+			<< std::scientific << std::setprecision(1)
 			<< xindex << ":"
 			<< m_x_bins[i] << "|";
 		for (int j = 0 ; j < dnum ; j++) std::cout << "#";
@@ -403,11 +412,6 @@ public:
 	void Fill(double, double, double);
 	void Fill(int xval, int yval, double weight = 1.0)
 		{Fill(static_cast<double>(xval), static_cast<double>(yval), weight);};
-	void Fill(int xval, int yval, int iweight = 1)
-		{Fill(static_cast<double>(xval),
-			static_cast<double>(yval), static_cast<double>(iweight));}
-	void Fill(int xval, int yval)
-		{Fill(static_cast<double>(xval), static_cast<double>(yval), 1.0);}
 	void Reset();
 
 	void SetNbins(int xbins, int ybins) {
@@ -541,7 +545,7 @@ void UH2Book::Fill(double xval, double yval, double weight = 1.0)
 	if ((xval >= m_x_max) && (xval <  m_x_max) && (yval >= m_y_max)) m_ouflows[1][2]++;
 	if ((xval >= m_x_max)                      && (yval >= m_y_max)) m_ouflows[2][2]++;
 
-	if (       (xval >= m_x_min) && (xval < m_x_max) 
+	if (       (xval >= m_x_min) && (xval < m_x_max)
 		&& (yval >= m_y_min) && (yval < m_x_max)) {
 		int ix = static_cast<int>(
 			(xval - m_x_min) / (m_x_max - m_x_min) * m_bins.size());
@@ -557,12 +561,13 @@ void UH2Book::Fill(double xval, double yval, double weight = 1.0)
 
 UH2Book& UH2Book::Add(UH2Book &h)
 {
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -589,12 +594,13 @@ UH2Book UH2Book::operator +(UH2Book &h)
 {
 	UH2Book hh(*this);
 
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -619,12 +625,13 @@ UH2Book UH2Book::operator +(UH2Book &h)
 
 UH2Book& UH2Book::Subtract(UH2Book &h)
 {
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -650,12 +657,14 @@ UH2Book& UH2Book::Subtract(UH2Book &h)
 UH2Book UH2Book::operator -(UH2Book &h)
 {
 	UH2Book hh(*this);
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -680,12 +689,13 @@ UH2Book UH2Book::operator -(UH2Book &h)
 
 UH2Book& UH2Book::Multiply(UH2Book &h)
 {
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -701,12 +711,14 @@ UH2Book& UH2Book::Multiply(UH2Book &h)
 UH2Book UH2Book::operator *(UH2Book &h)
 {
 	UH2Book hh(*this);
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
@@ -721,18 +733,18 @@ UH2Book UH2Book::operator *(UH2Book &h)
 
 UH2Book& UH2Book::Divide(UH2Book &h)
 {
-
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				if (h.GetBinContent(i, j) != 0) {
+				if (std::abs(h.GetBinContent(i, j)) < EPS) {
 					m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					m_bins[i][j] = 0;
@@ -747,17 +759,19 @@ UH2Book& UH2Book::Divide(UH2Book &h)
 UH2Book UH2Book::operator /(UH2Book &h)
 {
 	UH2Book hh(*this);
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size()) 
-		&& (h.GetMinimumX() == m_x_min) 
-		&& (h.GetMaximumX() == m_x_max)
-		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size()) 
-		&& (h.GetMinimumY() == m_y_min) 
-		&& (h.GetMaximumY() == m_y_max)
+
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
+		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
+		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
+		&& (std::abs(h.GetMinimumY() - m_y_min) < EPS)
+		&& (std::abs(h.GetMaximumY() - m_y_max) < EPS)
 		) {
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				if (h.GetBinContent(i, j) != 0) {
+				if (std::abs(h.GetBinContent(i, j)) < EPS) {
 					hh.m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					hh.m_bins[i][j] = 0;
@@ -803,11 +817,12 @@ void UH2Book::Draw()
 			if (vmax < j) vmax = j;
 		}
 	}
-	if (vmax == 0.0) vmax = 1.0;
+	constexpr double EPS = std::numeric_limits<double>::epsilon();
+	if (std::abs(vmax) < EPS) vmax = 1.0;
 
 	for (size_t i = 0 ; i < m_bins.size() ; i++) {
 		double xindex = ((m_x_max - m_x_min) / m_bins.size() * i) + m_x_min;
-		std::cout << std::scientific << std::setprecision(1) 
+		std::cout << std::scientific << std::setprecision(1)
 			<< xindex << "|";
 		for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
 			char v[2] = {0, 0};
@@ -826,7 +841,7 @@ void UH2Book::Draw()
 #endif // UHBOOK_CXX
 
 
-#ifdef TEST_MAIN 
+#ifdef TEST_MAIN
 #include <random>
 #include <sstream>
 int main(int argc, char* argv[])
@@ -879,6 +894,8 @@ int main(int argc, char* argv[])
 		h1a.Fill(val);
 	}
 
+	int val = 101;
+	h1a.Fill(val);
 	
 	UH1Book h1b = h1a + h1 + h1a;
 	h1b.SetTitle("Add");
