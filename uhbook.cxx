@@ -191,12 +191,19 @@ UH1Book& UH1Book::Add(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			m_x_bins[i] += h.GetBinContent(i);
+			//m_x_bins[i] += h.GetBinContent(i);
+			m_x_bins[i] += h.m_x_bins[i];
 		}
 
+		#if 0
 		m_entry += h.GetEntries();
 		m_uf += h.GetOverflows();
 		m_of += h.GetUnderflows(); 
+		#else
+		m_entry += h.m_entry;
+		m_uf += h.m_uf;
+		m_of += h.m_of; 
+		#endif
 
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
@@ -212,14 +219,11 @@ UH1Book UH1Book::operator +(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			//hh.SetBinContent(i, hh.GetBinContent(i) + h.GetBinContent(i));
-			hh.m_x_bins[i] += h.GetBinContent(i);
+			hh.m_x_bins[i] += h.m_x_bins[i];
 		}
-
-		hh.m_entry += h.GetEntries();
-		hh.m_uf += h.GetOverflows();
-		hh.m_of += h.GetUnderflows(); 
-
+		hh.m_entry += h.m_entry;
+		hh.m_uf += h.m_uf;
+		hh.m_of += h.m_of; 
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -234,14 +238,11 @@ UH1Book& UH1Book::Subtract(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			m_x_bins[i] -= h.GetBinContent(i);
+			m_x_bins[i] -= h.m_x_bins[i];
 		}
-
-		m_entry -= h.GetEntries();
-		m_uf -= h.GetOverflows();
-		m_of -= h.GetUnderflows(); 
-
-
+		m_entry -= h.m_entry;
+		m_uf -= h.m_uf;
+		m_of -= h.m_of; 
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -256,14 +257,11 @@ UH1Book UH1Book::operator -(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			hh.m_x_bins[i] -= h.GetBinContent(i);
+			hh.m_x_bins[i] -= h.m_x_bins[i];
 		}
-
-		hh.m_entry -= h.GetEntries();
-		hh.m_uf -= h.GetOverflows();
-		hh.m_of -= h.GetUnderflows(); 
-
-
+		hh.m_entry -= h.m_entry;
+		hh.m_uf -= h.m_uf;
+		hh.m_of -= h.m_of; 
 	} else {
 		//throw std::runtime_error("Diffrent size histograms");
 	}
@@ -278,7 +276,7 @@ UH1Book& UH1Book::Multiply(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			m_x_bins[i] = m_x_bins[i] * h.GetBinContent(i);
+			m_x_bins[i] = m_x_bins[i] * h.m_x_bins[i];
 		}
 	}
 
@@ -292,7 +290,7 @@ UH1Book UH1Book::operator *(UH1Book &h)
 		&& (h.GetMinimum() == m_x_min) 
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			hh.m_x_bins[i] = m_x_bins[i] * h.GetBinContent(i);
+			hh.m_x_bins[i] = m_x_bins[i] * h.m_x_bins[i];
 		}
 	}
 
@@ -324,7 +322,7 @@ UH1Book UH1Book::operator /(UH1Book &h)
 		&& (h.GetMaximum() == m_x_max)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
 			if (h.GetBinContent(i) != 0) {
-				hh.m_x_bins[i] = m_x_bins[i] / h.GetBinContent(i);
+				hh.m_x_bins[i] = m_x_bins[i] / h.m_x_bins[i];
 			} else {
 				hh.m_x_bins[i] = 0;
 			}
@@ -565,14 +563,14 @@ UH2Book& UH2Book::Add(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				m_bins[i][j] += h.GetBinContent(i, j);
+				m_bins[i][j] += h.m_bins[i][j];
 			}
 		}
 
 		m_entry += h.GetEntries();
 		for (int i = 0 ; i < 3 ; i++) {
 			for (int j = 0 ; j < 3 ; j++) {
-				m_ouflows[i][j] += h.GetOverUnderflows(i, j);
+				m_ouflows[i][j] += h.m_ouflows[i][j];
 			}
 		}
 
@@ -597,14 +595,14 @@ UH2Book UH2Book::operator +(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				hh.m_bins[i][j] += h.GetBinContent(i, j);
+				hh.m_bins[i][j] += h.m_bins[i][j];
 			}
 		}
 
 		hh.m_entry += h.GetEntries();
 		for (int i = 0 ; i < 3 ; i++) {
 			for (int j = 0 ; j < 3 ; j++) {
-				hh.m_ouflows[i][j] += h.GetOverUnderflows(i, j);
+				hh.m_ouflows[i][j] += h.m_ouflows[i][j];
 			}
 		}
 
@@ -627,14 +625,14 @@ UH2Book& UH2Book::Subtract(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				m_bins[i][j] -= h.GetBinContent(i, j);
+				m_bins[i][j] -= h.m_bins[i][j];
 			}
 		}
 
 		m_entry += h.GetEntries();
 		for (int i = 0 ; i < 3 ; i++) {
 			for (int j = 0 ; j < 3 ; j++) {
-				m_ouflows[i][j] -= h.GetOverUnderflows(i, j);
+				m_ouflows[i][j] -= h.m_ouflows[i][j];
 			}
 		}
 
@@ -658,14 +656,14 @@ UH2Book UH2Book::operator -(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				hh.m_bins[i][j] -= h.GetBinContent(i, j);
+				hh.m_bins[i][j] -= h.m_bins[i][j];
 			}
 		}
 
 		hh.m_entry -= h.GetEntries();
 		for (int i = 0 ; i < 3 ; i++) {
 			for (int j = 0 ; j < 3 ; j++) {
-				hh.m_ouflows[i][j] -= h.GetOverUnderflows(i, j);
+				hh.m_ouflows[i][j] -= h.m_ouflows[i][j];
 			}
 		}
 
@@ -688,7 +686,7 @@ UH2Book& UH2Book::Multiply(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				m_bins[i][j] = m_bins[i][j] * h.GetBinContent(i, j);
+				m_bins[i][j] = m_bins[i][j] * h.m_bins[i][j];
 			}
 		}
 	}
@@ -709,7 +707,7 @@ UH2Book UH2Book::operator *(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				hh.m_bins[i][j] = m_bins[i][j] * h.GetBinContent(i, j);
+				hh.m_bins[i][j] = m_bins[i][j] * h.m_bins[i][j];
 			}
 		}
 	}
@@ -731,7 +729,7 @@ UH2Book& UH2Book::Divide(UH2Book &h)
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
 				if (h.GetBinContent(i, j) != 0) {
-					m_bins[i][j] = m_bins[i][j] / h.GetBinContent(i, j);
+					m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					m_bins[i][j] = 0;
 				}
@@ -756,7 +754,7 @@ UH2Book UH2Book::operator /(UH2Book &h)
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
 				if (h.GetBinContent(i, j) != 0) {
-					hh.m_bins[i][j] = m_bins[i][j] / h.GetBinContent(i, j);
+					hh.m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					hh.m_bins[i][j] = 0;
 				}
@@ -831,7 +829,6 @@ int main(int argc, char* argv[])
 {
 	int nentry = 100;
 	for (int i = 1 ; i < argc ; i++) {
-		//std::string param(argv[i]);
 		std::istringstream iss(argv[i]);
 		iss >> nentry;
 	}
