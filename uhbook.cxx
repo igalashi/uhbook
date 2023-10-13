@@ -42,8 +42,10 @@ public:
 	UH1Book(std::string &, int, double, double);	
 	virtual ~UH1Book();
 	void Fill(double, double);
-	void Fill(int val, double weight = 1.0)
-		{Fill(static_cast<double>(val), weight);};
+	void Fill(int val, double weight = 1.0) {
+		Fill(static_cast<double>(val)
+		+ (std::numeric_limits<double>::epsilon() * 128),
+		weight);};
 	void Reset();
 
 #if 0
@@ -176,7 +178,6 @@ void UH1Book::Fill(double val, double weight = 1.0)
 	if ((val >= m_x_min) && (val < m_x_max)) {
 		int index = static_cast<int>(
 			(val - m_x_min) / (m_x_max - m_x_min) * m_x_bins.size());
-		//std::cout << "#D3 " << index << std::endl;
 		m_x_bins[index] += weight;
 		m_entry++;
 	}
@@ -312,7 +313,7 @@ UH1Book& UH1Book::Divide(UH1Book &h)
 		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (std::abs(h.GetBinContent(i)) < EPS) {
+			if (std::abs(h.GetBinContent(i)) > EPS) {
 				m_x_bins[i] = m_x_bins[i] / h.GetBinContent(i);
 			} else {
 				m_x_bins[i] = 0.0;
@@ -332,7 +333,7 @@ UH1Book UH1Book::operator /(UH1Book &h)
 		&& (std::abs(h.GetMinimum() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximum() - m_x_max) < EPS)) {
 		for (size_t i = 0 ; i < m_x_bins.size() ; i++) {
-			if (std::abs(h.GetBinContent(i)) < EPS) {
+			if (std::abs(h.GetBinContent(i)) > EPS) {
 				hh.m_x_bins[i] = m_x_bins[i] / h.m_x_bins[i];
 			} else {
 				hh.m_x_bins[i] = 0.0;
@@ -410,8 +411,12 @@ public:
 	UH2Book(std::string &, int, double, double, int, double, double);	
 	virtual ~UH2Book();
 	void Fill(double, double, double);
-	void Fill(int xval, int yval, double weight = 1.0)
-		{Fill(static_cast<double>(xval), static_cast<double>(yval), weight);};
+	void Fill(int xval, int yval, double weight = 1.0) {
+		Fill(static_cast<double>(xval)
+			+ (std::numeric_limits<double>::epsilon() * 128),
+			static_cast<double>(yval)
+			+ (std::numeric_limits<double>::epsilon() * 128),
+			weight);};
 	void Reset();
 
 	void SetNbins(int xbins, int ybins) {
@@ -744,7 +749,7 @@ UH2Book& UH2Book::Divide(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				if (std::abs(h.GetBinContent(i, j)) < EPS) {
+				if (std::abs(h.GetBinContent(i, j)) > EPS) {
 					m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					m_bins[i][j] = 0;
@@ -771,7 +776,7 @@ UH2Book UH2Book::operator /(UH2Book &h)
 
 		for (size_t i = 0 ; i < m_bins.size() ; i++) {
 			for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
-				if (std::abs(h.GetBinContent(i, j)) < EPS) {
+				if (std::abs(h.GetBinContent(i, j)) > EPS) {
 					hh.m_bins[i][j] = m_bins[i][j] / h.m_bins[i][j];
 				} else {
 					hh.m_bins[i][j] = 0;
@@ -811,12 +816,15 @@ void UH2Book::Draw()
 		' ', '.', '-', '+',
 		'x', '*', '@', '#'};
 
-	double vmax = 0;
+	double vmax = m_bins[0][0];
+	double vmin = m_bins[0][0];
 	for (auto &i : m_bins) {
 		for (auto &j : i) {
 			if (vmax < j) vmax = j;
+			if (vmin > j) vmin = j;
 		}
 	}
+	
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
 	if (std::abs(vmax) < EPS) vmax = 1.0;
 
@@ -826,14 +834,14 @@ void UH2Book::Draw()
 			<< xindex << "|";
 		for (size_t j = 0 ; j < m_bins[i].size() ; j++) {
 			char v[2] = {0, 0};
-			int dnum = static_cast<int>((m_bins[i][j] / vmax) * ngrade);
+			int dnum = static_cast<int>(((m_bins[i][j] - vmin) / vmax) * ngrade);
 			v[0] = dispchar[dnum];
 			std::cout << v;
 		}
 		std::cout << std::endl;
 	}
 
-	std::cout << std::defaultfloat;
+	std::cout << std::fixed << std::defaultfloat;
 
 	return;
 }
@@ -905,6 +913,14 @@ int main(int argc, char* argv[])
 
 	h1.Print();
 	h1.Draw();
+
+	UH1Book h1xx("Bining", 50, 0.0, 50.0);
+	for (int i = 0 ; i < 1000 ; i++) {
+		h1xx.Fill(i % 50);
+	}
+	h1xx.Print();
+	h1xx.Draw();
+
 
 	UH2Book h2("Hello 2D", 40, 0.0, 200.0, 40, 0.0, 200.0);
 	for (int i = 0 ; i < nentry * nentry ; i++) {
