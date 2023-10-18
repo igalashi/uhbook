@@ -11,6 +11,7 @@
 #include <string>
 #include <exception>
 #include <limits>
+#include <complex>
 
 class UHnBook {
 public:
@@ -347,7 +348,7 @@ UH1Book UH1Book::operator /(UH1Book &h)
 void UH1Book::Print()
 {
 	std::cout << "Title: " << m_title << std::endl;
-	std::cout << "Entry:      " << m_entry << std::endl;
+	std::cout << "Entry:	  " << m_entry << std::endl;
 	std::cout << "Over flow:  " << m_of << std::endl;
 	std::cout << "Under flow: " << m_uf << std::endl;
 
@@ -471,7 +472,8 @@ private:
 	double m_y_min;
 	double m_y_max;
 
-	std::array<std::array<int, 3>, 3> m_ouflows = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+	//std::array<std::array<int, 3>, 3> m_ouflows = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+	std::array<std::array<int, 3>, 3> m_ouflows;
 
 };
 
@@ -539,18 +541,18 @@ void UH2Book::Reset()
 
 void UH2Book::Fill(double xval, double yval, double weight = 1.0)
 {
-	if ((xval <  m_x_min)                      && (yval <  m_y_min)) m_ouflows[0][0]++;
+	if ((xval <  m_x_min)					  && (yval <  m_y_min)) m_ouflows[0][0]++;
 	if ((xval >= m_x_min) && (xval <  m_x_max) && (yval <  m_y_min)) m_ouflows[1][0]++;
-	if ((xval >= m_x_max)                      && (yval <  m_y_min)) m_ouflows[2][0]++;
+	if ((xval >= m_x_max)					  && (yval <  m_y_min)) m_ouflows[2][0]++;
 
 	if ((xval <  m_x_min) && (yval >= m_y_min) && (yval <  m_y_max)) m_ouflows[0][1]++;
 	if ((xval >= m_x_max) && (yval >= m_y_min) && (yval <  m_y_max)) m_ouflows[2][1]++;
 
-	if ((xval <  m_x_min)                      && (yval >= m_y_max)) m_ouflows[0][2]++;
+	if ((xval <  m_x_min)					  && (yval >= m_y_max)) m_ouflows[0][2]++;
 	if ((xval >= m_x_max) && (xval <  m_x_max) && (yval >= m_y_max)) m_ouflows[1][2]++;
-	if ((xval >= m_x_max)                      && (yval >= m_y_max)) m_ouflows[2][2]++;
+	if ((xval >= m_x_max)					  && (yval >= m_y_max)) m_ouflows[2][2]++;
 
-	if (       (xval >= m_x_min) && (xval < m_x_max)
+	if (	   (xval >= m_x_min) && (xval < m_x_max)
 		&& (yval >= m_y_min) && (yval < m_x_max)) {
 		int ix = static_cast<int>(
 			(xval - m_x_min) / (m_x_max - m_x_min) * m_bins.size());
@@ -567,7 +569,7 @@ void UH2Book::Fill(double xval, double yval, double weight = 1.0)
 UH2Book& UH2Book::Add(UH2Book &h)
 {
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -600,7 +602,7 @@ UH2Book UH2Book::operator +(UH2Book &h)
 	UH2Book hh(*this);
 
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -631,7 +633,7 @@ UH2Book UH2Book::operator +(UH2Book &h)
 UH2Book& UH2Book::Subtract(UH2Book &h)
 {
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -664,7 +666,7 @@ UH2Book UH2Book::operator -(UH2Book &h)
 	UH2Book hh(*this);
 
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -695,7 +697,7 @@ UH2Book UH2Book::operator -(UH2Book &h)
 UH2Book& UH2Book::Multiply(UH2Book &h)
 {
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -718,7 +720,7 @@ UH2Book UH2Book::operator *(UH2Book &h)
 	UH2Book hh(*this);
 
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -739,7 +741,7 @@ UH2Book UH2Book::operator *(UH2Book &h)
 UH2Book& UH2Book::Divide(UH2Book &h)
 {
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -766,7 +768,7 @@ UH2Book UH2Book::operator /(UH2Book &h)
 	UH2Book hh(*this);
 
 	constexpr double EPS = std::numeric_limits<double>::epsilon();
-	if (       (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
+	if (	   (static_cast<size_t>(h.GetNBinsX()) == m_bins.size())
 		&& (std::abs(h.GetMinimumX() - m_x_min) < EPS)
 		&& (std::abs(h.GetMaximumX() - m_x_max) < EPS)
 		&& (static_cast<size_t>(h.GetNBinsY()) == m_bins[0].size())
@@ -797,11 +799,11 @@ void UH2Book::Print()
 		<< std::setw(6) << m_ouflows[0][2] << " "
 		<< std::setw(6) << m_ouflows[1][2] << " "
 		<< std::setw(6) << m_ouflows[2][2] << std::endl;
-	std::cout << "               :  "
+	std::cout << "			   :  "
 		<< std::setw(6) << m_ouflows[0][1] << " "
 		<< std::setw(6) << m_entry << " "
 		<< std::setw(6) << m_ouflows[2][1] << std::endl;
-	std::cout << "               :  "
+	std::cout << "			   :  "
 		<< std::setw(6) << m_ouflows[0][0] << " "
 		<< std::setw(6) << m_ouflows[1][0] << " "
 		<< std::setw(6) << m_ouflows[2][0] << std::endl;
@@ -852,6 +854,25 @@ void UH2Book::Draw()
 #ifdef TEST_MAIN
 #include <random>
 #include <sstream>
+
+
+std::string Slowdashify(UH1Book& hist) {
+	std::ostringstream os;
+
+	os << "{" << std::endl;
+	os << "	\"bins\": { \"min\": " << hist.GetMinimum()
+		<< ", \"max\": " << hist.GetMaximum()
+		<< " }," << std::endl;
+	os << "	\"counts\": [ ";
+	for (int i = 0; i < hist.GetNBins(); i++) {
+		os << (i==0 ? "" : ", ") << hist.GetBinContent(i);
+	}
+	os << " ]" << std::endl;
+	os << "}" << std::endl;
+
+	return os.str();
+}
+
 int main(int argc, char* argv[])
 {
 	int nentry = 100;
@@ -943,6 +964,9 @@ int main(int argc, char* argv[])
 	h2b.SetTitle("copyed Hello 2D");
 	h2b.Print();
 	h2b.Draw();
+
+
+	std::cout << Slowdashify(h1) << std::endl;
 
 	return 0;
 }
